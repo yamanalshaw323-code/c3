@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فيديو داونلود - نسخة التجريب</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Arial, sans-serif; }
+  :root {
+    --bg:#0f0f1a; --card:#1a1a2e; --accent:#6c5ce7; --accent2:#00cec9;
+    --text:#f5f6fa; --muted:#a0a0b8; --success:#00b894; --error:#e74c3c;
+  }
+  body { background:var(--bg); color:var(--text); min-height:100vh; }
+  .container { max-width:900px; margin:0 auto; padding:20px; }
+
+  header { text-align:center; padding:50px 20px 30px; }
+  .logo { font-size:2.5rem; font-weight:800; background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .tagline { color:var(--muted); margin-top:10px; font-size:1.1rem; }
+
+  .demo-badge {
+    display:inline-block; background:var(--success); color:#fff;
+    padding:6px 18px; border-radius:20px; font-size:.85rem; font-weight:700;
+    margin-top:15px; animation:pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+  .download-box {
+    background:var(--card); border-radius:20px; padding:30px;
+    box-shadow:0 10px 40px rgba(108,92,231,.15); margin:20px 0;
+  }
+  .url-row { display:flex; gap:10px; flex-wrap:wrap; }
+  input[type=url] {
+    flex:1; min-width:250px; padding:15px 20px; border-radius:12px;
+    border:2px solid #2d2d44; background:#12121f; color:var(--text);
+    font-size:1rem; outline:none; transition:.3s;
+  }
+  input[type=url]:focus { border-color:var(--accent); }
+  select {
+    padding:15px; border-radius:12px; border:2px solid #2d2d44;
+    background:#12121f; color:var(--text); font-size:1rem; cursor:pointer;
+  }
+  .btn {
+    padding:15px 35px; border:none; border-radius:12px; cursor:pointer;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#fff; font-size:1.1rem; font-weight:700; transition:.3s; width:100%; margin-top:15px;
+  }
+  .btn:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(108,92,231,.4); }
+  .btn:disabled { opacity:.6; cursor:not-allowed; }
+
+  #status { margin-top:20px; display:none; text-align:center; }
+  .spinner { width:40px; height:40px; border:4px solid #2d2d44; border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 15px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .result-card { background:#12121f; border-radius:12px; padding:20px; margin-top:10px; }
+  .dl-link { display:block; margin-top:10px; padding:12px; background:var(--success); color:#fff; text-decoration:none; border-radius:10px; font-weight:700; }
+
+  .section { margin:40px 0; }
+  .section h2 { text-align:center; margin-bottom:25px; font-size:1.6rem; }
+  .platforms { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:15px; }
+  .platform { background:var(--card); border-radius:14px; padding:20px 10px; text-align:center; transition:.3s; border:1px solid #2d2d44; }
+  .platform:hover { border-color:var(--accent); transform:translateY(-4px); }
+  .platform .icon { font-size:2rem; }
+  .platform p { margin-top:8px; color:var(--muted); font-size:.9rem; }
+
+  .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; }
+  .step { background:var(--card); border-radius:14px; padding:25px; text-align:center; }
+  .step .num { display:inline-block; width:40px; height:40px; line-height:40px; border-radius:50%; background:var(--accent); font-weight:800; margin-bottom:12px; }
+
+  details { background:var(--card); border-radius:12px; margin-bottom:10px; padding:15px 20px; }
+  summary { cursor:pointer; font-weight:600; }
+  details p { color:var(--muted); margin-top:10px; line-height:1.7; }
+
+  /* قائمة الفحص */
+  .checklist { background:var(--card); border-radius:14px; padding:20px; }
+  .check-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #2d2d44; }
+  .check-item:last-child { border:none; }
+  .check-item input { width:20px; height:20px; cursor:pointer; accent-color:var(--success); }
+  .check-item label { cursor:pointer; flex:1; }
+  .check-item small { color:var(--muted); display:block; }
+
+  footer { text-align:center; padding:30px; color:var(--muted); font-size:.85rem; border-top:1px solid #2d2d44; margin-top:40px; }
+  .warn { color:var(--error); font-size:.85rem; margin-top:12px; text-align:center; }
+  #testLog { background:#12121f; border-radius:10px; padding:15px; margin-top:15px; font-size:.85rem; color:var(--accent2); text-align:right; max-height:150px; overflow-y:auto; display:none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⬇ فيديو داونلود</div>
+  <p class="tagline">نزّل الفيديوهات من جميع التطبيقات مجاناً وبجودة عالية</p>
+  <div class="demo-badge">🧪 وضع التجريب مفعّل</div>
+</header>
+
+<div class="container">
+
+  <!-- صندوق التنزيل -->
+  <div class="download-box">
+    <div class="url-row">
+      <input type="url" id="videoUrl" placeholder="📋 الصق رابط الفيديو هنا...">
+      <select id="quality">
+        <option value="best">أفضل جودة</option>
+        <option value="1080">1080p HD</option>
+        <option value="720">720p</option>
+        <option value="480">480p</option>
+        <option value="audio">صوت فقط (MP3)</option>
+      </select>
+    </div>
+    <button class="btn" id="downloadBtn" onclick="startDownload()">🚀 تنزيل الآن</button>
+    <p class="warn">⚠️ يُرجى احترام حقوق الملكية الفكرية وشروط استخدام التطبيقات</p>
+
+    <div id="status">
+      <div class="spinner" id="spinner"></div>
+      <p id="statusText">جاري جلب الفيديو...</p>
+      <div class="result-card" id="resultCard" style="display:none;">
+        <h3 id="videoTitle"></h3>
+        <p id="videoInfo" style="color:var(--muted); margin:8px 0;"></p>
+        <video id="previewVideo" controls style="width:100%; border-radius:10px; display:none; margin-top:10px;"></video>
+        <a href="#" class="dl-link" id="dlLink" download>⬇ تنزيل الملف</a>
+      </div>
+    </div>
+
+    <div id="testLog"></div>
+  </div>
+
+  <!-- قائمة فحص التجريب -->
+  <div class="section">
+    <h2>✅ قائمة فحص التجريب</h2>
+    <div class="checklist">
+      <div class="check-item"><input type="checkbox" id="c1"><label for="c1">إرسال الحقل فارغاً<small>يجب أن يظهر تنبيه "أدخل الرابط"</small></label></div>
+      <div class="check-item"><input type="checkbox" id="c2"><label for="c2">إدخال رابط خاطئ (نص عادي)<small>يجب أن يظهر تنبيه "رابط غير صحيح"</small></label></div>
+      <div class="check-item"><input type="checkbox" id="c3"><label for="c3">إدخال رابط صحيح<small>جرب: https://www.youtube.com/watch?v=demo</small></label></div>
+      <div class="check-item"><input type="checkbox" id="c4"><label for="c4">اختيار "صوت فقط (MP3)"<small>يجب أن يظهر رابط تنزيل الصوت التجريبي</small></label></div>
+      <div class="check-item"><input type="checkbox" id="c5"><label for="c5">معاينة الفيديو قبل التنزيل<small>شغّل المشغّل في بطاقة النتيجة</small></label></div>
+      <div class="check-item"><input type="checkbox" id="c6"><label for="c6">التنزيل على الجوال<small>افتح الصفحة من هاتفك وكرر الاختبار</small></label></div>
+    </div>
+  </div>
+
+  <!-- المنصات المدعومة -->
+  <div class="section">
+    <h2>📱 المنصات المدعومة</h2>
+    <div class="platforms">
+      <div class="platform"><div class="icon">▶️</div><p>YouTube</p></div>
+      <div class="platform"><div class="icon">🎵</div><p>TikTok</p></div>
+      <div class="platform"><div class="icon">📸</div><p>Instagram</p></div>
+      <div class="platform"><div class="icon">📘</div><p>Facebook</p></div>
+      <div class="platform"><div class="icon">🐦</div><p>X / Twitter</p></div>
+      <div class="platform"><div class="icon">🎥</div><p>Vimeo</p></div>
+    </div>
+  </div>
+
+  <!-- خطوات الاستخدام -->
+  <div class="section">
+    <h2>⚡ كيف يعمل؟</h2>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><h3>انسخ الرابط</h3><p style="color:var(--muted)">انسخ رابط الفيديو من التطبيق</p></div>
+      <div class="step"><div class="num">2</div><h3>الصقه هنا</h3><p style="color:var(--muted)">الصق الرابط في الصندوق بالأعلى</p></div>
+      <div class="step"><div class="num">3</div><h3>اختر الجودة</h3><p style="color:var(--muted)">حدد الجودة المناسبة لك</p></div>
+      <div class="step"><div class="num">4</div><h3>نزّل</h3><p style="color:var(--muted)">اضغط تنزيل واحفظ الفيديو</p></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 فيديو داونلود — نسخة تجريبية للاختبار</p>
+</footer>
+
+<script>
+// ═══════════════ وضع التجريب ═══════════════
+// يحاكي استجابة السيرفر بدون الحاجة لتشغيل app.py
+const DEMO_MODE = true;
+
+function logTest(msg) {
+  const log = document.getElementById('testLog');
+  log.style.display = 'block';
+  const time = new Date().toLocaleTimeString('ar');
+  log.innerHTML += `<div>[${time}] ${msg}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+function startDownload() {
+  const url = document.getElementById('videoUrl').value.trim();
+  const quality = document.getElementById('quality').value;
+  const status = document.getElementById('status');
+  const spinner = document.getElementById('spinner');
+  const resultCard = document.getElementById('resultCard');
+  const statusText = document.getElementById('statusText');
+  const btn = document.getElementById('downloadBtn');
+
+  // اختبار 1: الحقل الفارغ
+  if (!url) {
+    alert("⚠️ الرجاء إدخال رابط الفيديو أولاً");
+    logTest('❌ اختبار الحقل الفارغ: نجح (ظهر التنبيه)');
+    return;
+  }
+
+  // اختبار 2: التحقق من صحة الرابط
+  if (!/^https?:\/\/.+/.test(url)) {
+    alert("⚠️ الرجاء إدخال رابط صحيح يبدأ بـ http");
+    logTest('❌ اختبار الرابط الخاطئ: نجح (ظهر التنبيه)');
+    return;
+  }
+
+  logTest('📥 طلب تنزيل: ' + url.substring(0, 50));
+  status.style.display = 'block';
+  spinner.style.display = 'block';
+  resultCard.style.display = 'none';
+  btn.disabled = true;
+  statusText.textContent = 'جاري جلب الفيديو...';
+
+  const isAudio = quality === 'audio';
+
+  // محاكاة تأخير الشبكة (2 ثانية)
+  setTimeout(() => {
+    spinner.style.display = 'none';
+    document.getElementById('videoTitle').textContent =
+      isAudio ? '🎵 مقطع صوتي تجريبي' : '🎬 فيديو تجريبي — اختبار الموقع';
+    document.getElementById('videoInfo').textContent =
+      `المدة: 5 ثوانٍ • الجودة: ${isAudio ? 'MP3' : quality + 'p'} • المصدر: ${new URL(url).hostname}`;
+
+    const link = document.getElementById('dlLink');
+    link.href = isAudio ? 'sample-audio.mp3' : 'sample-video.mp4';
+    link.setAttribute('download', isAudio ? 'sample-audio.mp3' : 'sample-video.mp4');
+    link.textContent = isAudio ? '⬇ تنزيل الصوت (MP3)' : '⬇ تنزيل الفيديو (MP4)';
+
+    // معاينة الفيديو
+    const preview = document.getElementById('previewVideo');
+    if (isAudio) {
+      preview.style.display = 'none';
+    } else {
+      preview.src = 'sample-video.mp4';
+      preview.style.display = 'block';
+    }
+
+    resultCard.style.display = 'block';
+    statusText.textContent = '✅ تم تجهيز الفيديو بنجاح!';
+    logTest('✅ اكتمل التنزيل التجريبي');
+    btn.disabled = false;
+  }, 2000);
+}
+</script>
+
+</body>
+</html>
